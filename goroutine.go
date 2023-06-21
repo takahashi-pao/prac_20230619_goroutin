@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
 func main() {
-	go makeReqest("https://qiita.com/ohbashunsuke/items/e7c673db606a6dced8a6")
+
+	go makeReqest("https://takahashi-pao.github.io/oretachi-omaetachi/member.html")
 
 	go count("goroutine")
 	count("main")
@@ -15,6 +17,8 @@ func main() {
 	var input string
 	fmt.Scanln(&input)
 	fmt.Println(input)
+
+	GetRequest()
 }
 
 func count(label string) {
@@ -43,4 +47,29 @@ func makeReqest(url string) {
 	}
 
 	fmt.Println("Response:", string(body))
+}
+
+func GetRequest() {
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		url := "https://takahashi-pao.github.io/oretachi-omaetachi/member.html"
+
+		resp, err := http.Get(url)
+		if err != nil {
+			http.Error(w, "Error making request", http.StatusInternalServerError)
+			return
+		}
+		defer resp.Body.Close()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			http.Error(w, "Error reading response body", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "text/html")
+		fmt.Fprint(w, string(body)) // HTMLコンテンツをレスポンスとして返す
+	})
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
