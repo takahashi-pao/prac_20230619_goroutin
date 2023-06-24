@@ -27,7 +27,6 @@ func count(label string) {
 
 		}
 		fmt.Println(label, i)
-		// time.Sleep(time.Microsecond * 500)
 	}
 }
 
